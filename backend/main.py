@@ -37,14 +37,20 @@ class StepRequest(BaseModel):
     language: str = "en"
 
 # Global instances
-# Use ngrok URL if available, otherwise local IP
+# Use Render URL or ngrok URL if available, otherwise local IP
 import os
+import socket
+
+render_url = os.getenv('RENDER_EXTERNAL_URL', '')
 ngrok_url = os.getenv('NGROK_URL', '')
-if ngrok_url:
+
+if render_url:
+    avatar_engine = AvatarEngine(base_ip=render_url)
+    print(f"📹 Using Render for videos: {render_url}")
+elif ngrok_url:
     avatar_engine = AvatarEngine(base_ip=ngrok_url)
     print(f"📹 Using ngrok for videos: {ngrok_url}")
 else:
-    import socket
     def get_local_ip():
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -56,6 +62,8 @@ else:
             return "localhost"
     server_ip = get_local_ip()
     avatar_engine = AvatarEngine(base_ip=server_ip)
+    print(f"📹 Using local IP for videos: {server_ip}")
+
 sessions = {}
 
 # Mount videos directory
