@@ -1,0 +1,186 @@
+.avatar-booking {
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.avatar-section {
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.avatar-video {
+  width: 100%;
+  max-width: 400px;
+  height: 300px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.avatar-message {
+  font-size: 18px;
+  color: #333;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.booking-section {
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.step-content h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.language-selector {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.language-selector button {
+  padding: 10px 20px;
+  border: 2px solid #3498db;
+  background: white;
+  color: #3498db;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.language-selector button.active,
+.language-selector button:hover {
+  background: #3498db;
+  color: white;
+}
+
+.step-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.step-form h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.step-form input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.step-form input:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.passenger-counters {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+  margin: 20px 0;
+}
+
+.passenger-counters div {
+  text-align: center;
+}
+
+.passenger-counters label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.passenger-counters input {
+  width: 60px;
+  text-align: center;
+}
+
+.next-btn, .step-form button {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: block;
+  margin: 20px auto;
+}
+
+.next-btn:hover, .step-form button:hover {
+  background: #219a52;
+}
+
+.next-btn:disabled, .step-form button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.back-btn, .replay-btn {
+  padding: 10px 20px;
+  border: 2px solid #95a5a6;
+  background: white;
+  color: #95a5a6;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-btn:hover, .replay-btn:hover {
+  background: #95a5a6;
+  color: white;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #7f8c8d;
+}
+
+@media (max-width: 768px) {
+  .avatar-booking {
+    padding: 10px;
+  }
+  
+  .avatar-video {
+    height: 200px;
+  }
+  
+  .passenger-counters {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .navigation {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

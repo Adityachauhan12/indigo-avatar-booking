@@ -1,0 +1,129 @@
+import os
+from typing import Dict, Any
+from sarvam_service import SarvamService
+
+
+class ChatbotIntegration:
+    """
+    Integration with the Sky chatbot system.
+    Handles initial chatbot responses before avatar flow is triggered.
+    """
+
+    def __init__(self, uid: str):
+        self.uid = uid
+        self.sky_api_url = os.getenv("SKY_API_URL")
+        self.conversation_count = 0
+        self.sarvam = SarvamService()
+
+    async def process_query(
+        self, 
+        query: str, 
+        language: str = "en", 
+        in_avatar_flow: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Process query through chatbot.
+        
+        Returns:
+            Dict with 'message' and optionally 'trigger_avatar' or 'trigger_checkin' flag
+        """
+        self.conversation_count += 1
+
+        # Don't allow triggering avatar if already in it
+        if in_avatar_flow:
+            return {
+                "type": "chatbot_response",
+                "message": "Please use the avatar flow to continue.",
+                "trigger_avatar": False,
+                "trigger_checkin": False
+            }
+
+        # Check if query should trigger check-in flow
+        if self._should_trigger_checkin(query):
+            welcome_message = "Great! I'll guide you through web check-in with step-by-step avatar assistance." if language == "en" else "बहुत अच्छा! मैं चरणबद्ध अवतार सहायता के साथ वेब चेक-इन के माध्यम से आपका मार्गदर्शन करूंगा।"
+            return {
+                "type": "checkin_trigger",
+                "message": welcome_message,
+                "trigger_checkin": True
+            }
+
+        # Check if query should trigger avatar flow
+        if self._should_trigger_avatar(query):
+            welcome_message = "Great! I'll guide you through booking with step-by-step avatar assistance." if language == "en" else "बहुत अच्छा! मैं चरणबद्ध अवतार सहायता के साथ बुकिंग के माध्यम से आपका मार्गदर्शन करूंगा।"
+            return {
+                "type": "avatar_trigger",
+                "message": welcome_message,
+                "trigger_avatar": True
+            }
+
+        # Default chatbot responses in English
+        responses_en = [
+            "Hello! I can help you with flight bookings, check-in, seat selection, and more. Would you like to book a flight with avatar guidance?",
+            "I'm here to assist with your travel needs. Would you like me to guide you through booking a flight with our avatar assistant?",
+            "How can I help you today? I can assist with flight bookings, flight status, check-in, and more. Want to try avatar-guided booking?"
+        ]
+
+        response_index = min(self.conversation_count - 1, len(responses_en) - 1)
+        base_message = responses_en[response_index]
+        
+        # Translate to target language if needed
+        if language != "en":
+            translated_message = await self.sarvam.translate_text(base_message, language, "en")
+        else:
+            translated_message = base_message
+
+        return {
+            "type": "chatbot_response",
+            "message": translated_message,
+            "trigger_avatar": False,
+            "show_quick_actions": True
+        }
+
+    def _should_trigger_avatar(self, query: str) -> bool:
+        """
+        Determine if avatar flow should be triggered based on user input.
+        """
+        avatar_triggers = [
+            "book flight",
+            "flight booking",
+            "book ticket",
+            "avatar help",
+            "step by step",
+            "guided booking",
+            "avatar guidance",
+            "book a flight",
+            "flight reservation",
+            "new booking",
+            "booking",
+            "avatar",
+            "अवतार के साथ उड़ान बुक करें",  # Hindi avatar trigger
+            "book flight with avatar",      # English avatar trigger
+            "फ्लाइट बुक",
+            "बुकिंग",
+            "अवतार",
+            "टिकट बुक"
+        ]
+
+        query_lower = query.lower().strip()
+        return any(trigger in query_lower for trigger in avatar_triggers)
+    
+    def _should_trigger_checkin(self, query: str) -> bool:
+        """
+        Determine if check-in flow should be triggered based on user input.
+        """
+        checkin_triggers = [
+            "check in",
+            "check-in",
+            "checkin",
+            "web check in",
+            "web checkin",
+            "boarding pass",
+            "online check in",
+            "चेक इन",
+            "वेब चेक इन",
+            "बोर्डिंग पास",
+            "ऑनलाइन चेक इन"
+        ]
+
+        query_lower = query.lower().strip()
+        return any(trigger in query_lower for trigger in checkin_triggers)

@@ -1,0 +1,22 @@
+{
+  "flight_booking": {
+    "steps": [
+      "welcome",
+      "language_selection",
+      "origin_selection",
+      "destination_selection", 
+      "date_selection",
+      "passenger_selection",
+      "flight_search",
+      "flight_selection",
+      "passenger_details",
+      "review_booking",
+      "payment"
+    ],
+    "navigation": {
+      "allow_back": true,
+      "allow_skip": ["language_selection"],
+      "required_steps": ["origin_selection", "destination_selection", "date_selection"]
+    }
+  }
+}

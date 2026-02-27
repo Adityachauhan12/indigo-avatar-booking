@@ -1,0 +1,121 @@
+import os
+import requests
+from typing import Dict, Any, Optional
+import logging
+
+logger = logging.getLogger(__name__)
+
+class SarvamService:
+    """
+    Integration with Sarvam AI for translation and text-to-speech
+    """
+    
+    def __init__(self):
+        self.api_key = os.getenv("SARVAM_API_KEY")
+        self.translate_url = os.getenv("SARVAM_TRANSLATE_URL")
+        self.tts_url = os.getenv("SARVAM_TTS_URL")
+        
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        # Language mapping
+        self.lang_codes = {
+            "en": "en-IN",
+            "hi": "hi-IN"
+        }
+    
+    async def translate_text(self, text: str, target_language: str, source_language: str = "en") -> str:
+        """
+        Translate text using Sarvam AI
+        
+        Args:
+            text: Text to translate
+            target_language: Target language code (en, hi)
+            source_language: Source language code (default: en)
+            
+        Returns:
+            Translated text
+        """
+        try:
+            # If same language, return original text
+            if source_language == target_language:
+                return text
+            
+            # Get Sarvam language codes
+            source_lang = self.lang_codes.get(source_language, "en-IN")
+            target_lang = self.lang_codes.get(target_language, "hi-IN")
+            
+            payload = {
+                "input": text,
+                "source_language_code": source_lang,
+                "target_language_code": target_lang,
+                "speaker_gender": "Female",
+                "mode": "formal",
+                "model": "mayura:v1",
+                "enable_preprocessing": True
+            }
+            
+            response = requests.post(
+                self.translate_url,
+                headers=self.headers,
+                json=payload,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                return result.get("translated_text", text)
+            else:
+                logger.error(f"Translation failed: {response.status_code} - {response.text}")
+                return text
+                
+        except Exception as e:
+            logger.error(f"Translation error: {str(e)}")
+            return text
+    
+    async def generate_speech(self, text: str, language: str = "hi") -> Optional[str]:
+        """
+        Generate speech using Sarvam TTS
+        
+        Args:
+            text: Text to convert to speech
+            language: Language code (en, hi)
+            
+        Returns:
+            Audio URL or None if failed
+        """
+        try:
+            lang_code = self.lang_codes.get(language, "hi-IN")
+            
+            payload = {
+                "inputs": [text],
+                "target_language_code": lang_code,
+                "speaker": "meera",
+                "pitch": 0,
+                "pace": 1.0,
+                "loudness": 1.0,
+                "speech_sample_rate": 8000,
+                "enable_preprocessing": True,
+                "model": "bulbul:v1"
+            }
+            
+            response = requests.post(
+                self.tts_url,
+                headers=self.headers,
+                json=payload,
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                # Return the audio data or URL
+                return result.get("audios", [None])[0]
+            else:
+                logger.error(f"TTS failed: {response.status_code} - {response.text}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"TTS error: {str(e)}")
+            return None

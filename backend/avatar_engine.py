@@ -1,0 +1,75 @@
+from typing import Optional
+
+
+class AvatarEngine:
+    """Handles avatar video URL generation for multilingual support"""
+
+    def __init__(self, base_ip: str = None):
+        # Use environment variable or default to localhost
+        import os
+        if base_ip:
+            # Check if it's an ngrok URL
+            if 'ngrok' in base_ip or base_ip.startswith('http'):
+                self.base_url = f"{base_ip}/videos" if not base_ip.endswith('/videos') else base_ip
+            else:
+                self.base_url = f"http://{base_ip}:8000/videos"
+        else:
+            self.base_url = os.getenv('AVATAR_CDN_URL', 'http://localhost:8000/videos')
+        if not self.base_url.startswith('http'):
+            self.base_url = f"http://localhost:8000{self.base_url}"
+        
+        # Language folder mapping
+        self.language_folders = {
+            "en": "english",
+            "hi": "hindi"
+        }
+        
+        # Video filename mapping (without language suffix)
+        self.video_files = {
+            "welcome": "welcome",
+            "language_selection": "language_selection",
+            "origin_selection": "origin_selection",
+            "destination_selection": "destination_selection",
+            "date_selection": "date_selection",
+            "passenger_selection": "passenger_selection",
+            "flight_search": "flight_search",
+            "flight_selection": "flight_selection",
+            "passenger_details": "passenger_details",
+            "review_booking": "review_booking",
+            "payment": "payment_handoff"
+        }
+
+    def get_video_url(self, step: str, language: str = "en", folder: str = None) -> Optional[str]:
+        """
+        Get avatar video URL for a given step and language.
+        
+        Args:
+            step: The booking flow step name
+            language: Language code (en, hi)
+            folder: Optional folder override (e.g., 'avatar_checkin')
+            
+        Returns:
+            Full video URL or None if not found
+        """
+        # Check-in videos
+        if folder == "avatar_checkin":
+            lang_folder = self.language_folders.get(language, "english")
+            lang_suffix = "eng" if language == "en" else "hindi"
+            filename = f"{step}_{lang_suffix}.mp4"
+            return f"{self.base_url}/avatar_checkin/{lang_folder}/{filename}"
+        
+        # Booking videos
+        if step in self.video_files:
+            lang_folder = self.language_folders.get(language, "english")
+            lang_suffix = "en" if language == "en" else "hi"
+            filename = f"{self.video_files[step]}_{lang_suffix}.mp4"
+            return f"{self.base_url}/{lang_folder}/{filename}"
+        return None
+
+    def get_subtitle_url(self, step: str, language: str = "en") -> Optional[str]:
+        """Get subtitle URL for accessibility."""
+        return None
+
+    def validate_video_exists(self, step: str) -> bool:
+        """Check if video file mapping exists for a step"""
+        return step in self.video_files

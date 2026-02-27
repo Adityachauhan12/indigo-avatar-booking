@@ -1,0 +1,136 @@
+from typing import Dict, Any
+from avatar_engine import AvatarEngine
+
+
+class CheckinController:
+    """Controls the web check-in flow with avatar guidance"""
+
+    def __init__(self, uid: str, language: str = "en"):
+        self.uid = uid
+        self.language = language
+        self.avatar_engine = AvatarEngine()
+        self.current_step = None
+        self.checkin_data = {}
+
+        self.messages = {
+            "en": {
+                "welcome_checkin": "Hello! I'll help you with web check-in. Let's get started!",
+                "pnr_collection": "Please enter your 6-character PNR number.",
+                "lastname_collection": "Please enter the last name used during booking.",
+                "mobile_collection": "Please provide your mobile number with country code (e.g., +91).",
+                "email_collection": "Please enter your email address to receive the boarding pass.",
+                "disclaimer_explanation": "Your check-in will be done automatically 6-12 hours before flight departure with a free seat based on availability.",
+                "seat_consent": "Do you consent to automatic seat assignment?",
+                "processing_checkin": "Processing your check-in request...",
+                "checkin_success": "Check-in successful! You'll receive your boarding pass via email 6-12 hours before departure.",
+                "checkin_error": "Unable to complete check-in. Please verify your details and try again."
+            },
+            "hi": {
+                "welcome_checkin": "नमस्ते! मैं आपकी वेब चेक-इन में मदद करूंगा। चलिए शुरू करते हैं!",
+                "pnr_collection": "कृपया अपना 6-अक्षर का PNR नंबर दर्ज करें।",
+                "lastname_collection": "कृपया बुकिंग के दौरान उपयोग किया गया अंतिम नाम दर्ज करें।",
+                "mobile_collection": "कृपया देश कोड के साथ अपना मोबाइल नंबर प्रदान करें (जैसे +91)।",
+                "email_collection": "बोर्डिंग पास प्राप्त करने के लिए अपना ईमेल पता दर्ज करें।",
+                "disclaimer_explanation": "आपकी चेक-इन उड़ान प्रस्थान से 6-12 घंटे पहले उपलब्धता के आधार पर मुफ्त सीट के साथ स्वचालित रूप से की जाएगी।",
+                "seat_consent": "क्या आप स्वचालित सीट असाइनमेंट के लिए सहमत हैं?",
+                "processing_checkin": "आपके चेक-इन अनुरोध को संसाधित किया जा रहा है...",
+                "checkin_success": "चेक-इन सफल! आपको प्रस्थान से 6-12 घंटे पहले ईमेल के माध्यम से बोर्डिंग पास प्राप्त होगा।",
+                "checkin_error": "चेक-इन पूरा करने में असमर्थ। कृपया अपने विवरण सत्यापित करें और पुनः प्रयास करें।"
+            }
+        }
+
+        self.step_flow = {
+            "welcome_checkin": "pnr_collection",
+            "pnr_collection": "lastname_collection",
+            "lastname_collection": "mobile_collection",
+            "mobile_collection": "email_collection",
+            "email_collection": "disclaimer_explanation",
+            "disclaimer_explanation": "seat_consent",
+            "seat_consent": "processing_checkin",
+            "processing_checkin": "checkin_success",
+            "checkin_success": "complete",
+            "checkin_error": "complete"
+        }
+
+    async def start_checkin_flow(self, query: str, language: str) -> Dict[str, Any]:
+        """Start the avatar-guided check-in flow"""
+        self.language = language
+        self.current_step = "welcome_checkin"
+        
+        video_url = self.avatar_engine.get_video_url("welcome_checkin", language, folder="avatar_checkin")
+        message = self.messages.get(language, self.messages["en"]).get("welcome_checkin")
+
+        return {
+            "type": "avatar_checkin_flow",
+            "step": "welcome_checkin",
+            "avatar_video": video_url,
+            "message": message,
+            "next_step": "pnr_collection",
+            "uid": self.uid,
+            "show_input": True
+        }
+
+    async def process_step(
+        self, 
+        step: str, 
+        user_input: Dict[str, Any], 
+        language: str
+    ) -> Dict[str, Any]:
+        """Process a check-in step"""
+        self.language = language
+        
+        if user_input:
+            self.checkin_data[step] = user_input
+
+        # Validation logic
+        if step == "pnr_collection" and user_input:
+            pnr = user_input.get("pnr", "")
+            if len(pnr) != 6:
+                return {
+                    "type": "validation_error",
+                    "step": step,
+                    "message": "PNR must be 6 characters" if language == "en" else "PNR 6 अक्षर का होना चाहिए",
+                    "avatar_video": self.avatar_engine.get_video_url(step, language, folder="avatar_checkin")
+                }
+
+        # Get next step
+        next_step = self.step_flow.get(step, "complete")
+        
+        # Special handling for processing step
+        if next_step == "processing_checkin":
+            # Simulate API call
+            success = await self._process_checkin()
+            next_step = "checkin_success" if success else "checkin_error"
+        
+        self.current_step = next_step
+
+        message_dict = self.messages.get(language, self.messages["en"])
+        message = message_dict.get(next_step, f"Processing {next_step}")
+        video_url = self.avatar_engine.get_video_url(next_step, language, folder="avatar_checkin")
+
+        response = {
+            "type": "avatar_checkin_step",
+            "step": next_step,
+            "next_step": self.step_flow.get(next_step, "complete"),
+            "avatar_video": video_url,
+            "message": message,
+            "checkin_data": self.checkin_data
+        }
+
+        if next_step in ["checkin_success", "checkin_error"]:
+            response["type"] = "checkin_complete"
+            response["success"] = next_step == "checkin_success"
+
+        if next_step == "complete":
+            response["type"] = "complete"
+            response["avatar_video"] = None
+            response["next_step"] = None
+
+        return response
+
+    async def _process_checkin(self) -> bool:
+        """Simulate check-in processing - integrate with actual API"""
+        # TODO: Integrate with actual check-in API
+        # For now, return success if all required fields are present
+        required_fields = ["pnr_collection", "lastname_collection", "mobile_collection", "email_collection"]
+        return all(field in self.checkin_data for field in required_fields)

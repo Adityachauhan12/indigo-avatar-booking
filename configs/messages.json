@@ -1,0 +1,32 @@
+{
+  "en": {
+    "welcome": "Welcome! I'll help you book your flight step by step.",
+    "origin_selection": "Please select your departure city",
+    "destination_selection": "Please select your destination city",
+    "date_selection": "When would you like to travel?",
+    "passenger_selection": "How many passengers will be traveling?",
+    "flight_selection": "Please select your preferred flight",
+    "passenger_details": "Please enter passenger details",
+    "review_booking": "Please review your booking details"
+  },
+  "hi": {
+    "welcome": "नमस्ते! मैं आपकी फ्लाइट बुकिंग में चरणबद्ध मदद करूंगा।",
+    "origin_selection": "कृपया अपना प्रस्थान शहर चुनें",
+    "destination_selection": "कृपया अपना गंतव्य शहर चुनें", 
+    "date_selection": "आप कब यात्रा करना चाहते हैं?",
+    "passenger_selection": "कितने यात्री यात्रा करेंगे?",
+    "flight_selection": "कृपया अपनी पसंदीदा फ्लाइट चुनें",
+    "passenger_details": "कृपया यात्री विवरण दर्ज करें",
+    "review_booking": "कृपया अपनी बुकिंग का विवरण देखें"
+  },
+  "ta": {
+    "welcome": "வணக்கம்! உங்கள் விமான முன்பதிவுக்கு படிப்படியாக உதவுகிறேன்.",
+    "origin_selection": "தயவுசெய்து புறப்பாடு நகரத்தைத் தேர்ந்தெடுக்கவும்",
+    "destination_selection": "தயவுசெய்து இலக்கு நகரத்தைத் தேர்ந்தெடுக்கவும்",
+    "date_selection": "எப்போது பயணம் செய்ய விரும்புகிறீர்கள்?",
+    "passenger_selection": "எத்தனை பயணிகள் பயணம் செய்வார்கள்?",
+    "flight_selection": "தயவுசெய்து உங்கள் விருப்பமான விமானத்தைத் தேர்ந்தெடுக்கவும்",
+    "passenger_details": "தயவுசெய்து பயணிகளின் விவரங்களை உள்ளிடவும்",
+    "review_booking": "தயவுசெய்து உங்கள் முன்பதிவு விவரங்களை மதிப்பாய்வு செய்யவும்"
+  }
+}
