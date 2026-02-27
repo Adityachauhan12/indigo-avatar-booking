@@ -85,8 +85,8 @@ async def chat_endpoint(request: ChatRequest):
 
         if uid not in sessions:
             sessions[uid] = {
-                "flow_controller": FlowController(uid, request.language),
-                "checkin_controller": CheckinController(uid, request.language),
+                "flow_controller": FlowController(uid, request.language, avatar_engine),
+                "checkin_controller": CheckinController(uid, request.language, avatar_engine),
                 "chatbot": ChatbotIntegration(uid),
                 "current_step": None,
                 "language": request.language,

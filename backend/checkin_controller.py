@@ -5,10 +5,10 @@ from avatar_engine import AvatarEngine
 class CheckinController:
     """Controls the web check-in flow with avatar guidance"""
 
-    def __init__(self, uid: str, language: str = "en"):
+    def __init__(self, uid: str, language: str = "en", avatar_engine=None):
         self.uid = uid
         self.language = language
-        self.avatar_engine = AvatarEngine()
+        self.avatar_engine = avatar_engine
         self.current_step = None
         self.checkin_data = {}
 

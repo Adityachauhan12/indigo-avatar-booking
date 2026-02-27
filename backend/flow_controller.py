@@ -11,10 +11,10 @@ class FlowController:
     - Returns correct messages and videos for each step
     """
 
-    def __init__(self, uid: str, language: str = "en"):
+    def __init__(self, uid: str, language: str = "en", avatar_engine=None):
         self.uid = uid
         self.language = language
-        self.avatar_engine = AvatarEngine()
+        self.avatar_engine = avatar_engine
         self.current_step = None
         self.booking_data = {}
 
