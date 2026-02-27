@@ -62,6 +62,9 @@ sessions = {}
 video_path = os.path.join(os.path.dirname(__file__), "..", "videos")
 if os.path.exists(video_path):
     app.mount("/videos", StaticFiles(directory=video_path), name="videos")
+    print(f"📹 Videos mounted from: {video_path}")
+else:
+    print(f"⚠️  Videos directory not found at: {video_path}")
 
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
