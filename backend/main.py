@@ -37,20 +37,23 @@ class StepRequest(BaseModel):
     language: str = "en"
 
 # Global instances
-# Use Render URL or ngrok URL if available, otherwise local IP
+# Detect if running on Render and use the external URL
 import os
 import socket
 
-render_url = os.getenv('RENDER_EXTERNAL_URL', '')
-ngrok_url = os.getenv('NGROK_URL', '')
-
-if render_url:
+# Render automatically provides RENDER_EXTERNAL_URL
+if 'RENDER' in os.environ or 'RENDER_EXTERNAL_URL' in os.environ:
+    # Running on Render - use the external URL
+    render_url = os.environ.get('RENDER_EXTERNAL_URL', 'https://indigo-avatar-booking.onrender.com')
     avatar_engine = AvatarEngine(base_ip=render_url)
     print(f"📹 Using Render for videos: {render_url}")
-elif ngrok_url:
+elif os.getenv('NGROK_URL'):
+    # Using ngrok for local development
+    ngrok_url = os.getenv('NGROK_URL')
     avatar_engine = AvatarEngine(base_ip=ngrok_url)
     print(f"📹 Using ngrok for videos: {ngrok_url}")
 else:
+    # Local development - use local IP
     def get_local_ip():
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
